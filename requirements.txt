@@ -1,0 +1,11 @@
+# list of all python packages need in this project
+
+
+requests==2.31.0        # For making HTTP requests to APIs
+python-dotenv==1.0.0    # For loading .env files
+pandas==2.1.4           # For data manipulation
+psycopg2-binary==2.9.9  # PostgreSQL database adapter
+schedule==1.2.0         # For scheduling tasks
+plotly==5.18.0          # For interactive visualizations
+streamlit==1.29.0       # For building dashboard
+pyyaml==6.0.1          # For YAML config files
