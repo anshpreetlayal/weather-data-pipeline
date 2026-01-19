@@ -1,0 +1,63 @@
+# docker-compose.yml
+# Docker Compose configuration for weather data pipeline
+# This sets up PostgreSQL database with a single command
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: weather_db
+    restart: always
+    environment:
+      # Database credentials (change these in production!)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: weather_db
+      # Performance tuning
+      POSTGRES_MAX_CONNECTIONS: 100
+      POSTGRES_SHARED_BUFFERS: 256MB
+    ports:
+      # Expose PostgreSQL on localhost:5432
+      - "5432:5432"
+    volumes:
+      # Persist data even when container is stopped
+      - postgres_data:/var/lib/postgresql/data
+      # Auto-run schema.sql on first startup
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      # Check if database is ready
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # pgAdmin - Web interface for PostgreSQL (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: weather_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@weather.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      # Access pgAdmin at http://localhost:5050
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# Network configuration
+networks:
+  default:
+    name: weather_pipeline_network
